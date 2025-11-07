@@ -366,7 +366,6 @@ void displayAdminMenu(const string &adminName)
          << RESET;
     printMenuOption(16, "View Dashboard Analytics");
 
-    printMenuOption(17, "🔍 View Student Details");
     printSeparator();
     cout << YELLOW << "\n   Enter your choice: " << RESET;
 }
@@ -497,18 +496,6 @@ public:
     string getId() const { return id; }
     string getName() const { return name; }
     virtual ~Person() {}
-
-    friend bool samePerson(const Person &p1, const Person &p2)
-    {
-        return p1.id == p2.id; // Only access Person members
-    }
-
-    // ✅ Person output operator
-    friend ostream &operator<<(ostream &os, const Person &p)
-    {
-        os << "Person: " << p.name << " (ID: " << p.id << ")";
-        return os;
-    }
 };
 
 class Registration
@@ -925,6 +912,36 @@ public:
     MealPlan(string sid = "", bool lunch = true, bool dinner = true)
         : studentId(sid), hasLunch(lunch), hasDinner(dinner) {}
 
+    // OPERATOR OVERLOADING
+    bool operator==(const MealPlan &other) const
+    {
+        return studentId == other.studentId;
+    }
+
+    bool operator==(const string &searchId) const
+    {
+        return studentId == searchId;
+    }
+
+    // Bool conversion for active check
+    operator bool() const
+    {
+        return hasLunch || hasDinner;
+    }
+
+    // Combined meal check
+    bool operator&&(const MealPlan &other) const
+    {
+        return (hasLunch && other.hasLunch) && (hasDinner && other.hasDinner);
+    }
+
+    // Output operator
+    friend ostream &operator<<(ostream &os, const MealPlan &mp)
+    {
+        os << "MealPlan[Student:" << mp.studentId << ", Lunch:" << mp.hasLunch << ", Dinner:" << mp.hasDinner << "]";
+        return os;
+    }
+
     string serialize() const
     {
         string offDatesStr = "-";
@@ -975,6 +992,35 @@ public:
     DailyMenu(string d = "", string l = "", string dn = "")
         : date(d), lunchMenu(l), dinnerMenu(dn) {}
 
+    // OPERATOR OVERLOADING
+    bool operator==(const DailyMenu &other) const
+    {
+        return date == other.date;
+    }
+
+    bool operator==(const string &dateStr) const
+    {
+        return date == dateStr;
+    }
+
+    bool operator<(const DailyMenu &other) const
+    {
+        return date < other.date;
+    }
+
+    // Check if menu is set
+    operator bool() const
+    {
+        return !lunchMenu.empty() || !dinnerMenu.empty();
+    }
+
+    // Output operator
+    friend ostream &operator<<(ostream &os, const DailyMenu &dm)
+    {
+        os << "DailyMenu[Date:" << dm.date << ", Lunch:" << (dm.lunchMenu.empty() ? "Not set" : "Set") << "]";
+        return os;
+    }
+
     string serialize() const
     {
         return date + "|" + lunchMenu + "|" + dinnerMenu;
@@ -1007,6 +1053,47 @@ public:
 
     Payment(string pid = "", string sid = "", string my = "", double amt = 0, string st = "pending", string d = "")
         : paymentId(pid), studentId(sid), monthYear(my), amount(amt), status(st), date(d) {}
+
+    // OPERATOR OVERLOADING - FIXED
+    bool operator==(const Payment &other) const
+    {
+        return paymentId == other.paymentId;
+    }
+
+    // Compare with payment ID
+    bool operator==(const string &searchPaymentId) const
+    {
+        return paymentId == searchPaymentId;
+    }
+
+    // Compare with student ID - use different function name or parameter
+    bool hasStudentId(const string &searchStudentId) const
+    {
+        return studentId == searchStudentId;
+    }
+
+    // Compare payment status
+    bool hasStatus(const string &statusStr) const
+    {
+        return status == statusStr;
+    }
+
+    bool operator<(const Payment &other) const
+    {
+        return amount < other.amount;
+    }
+
+    bool operator>(const Payment &other) const
+    {
+        return amount > other.amount;
+    }
+
+    // Output operator
+    friend ostream &operator<<(ostream &os, const Payment &p)
+    {
+        os << "Payment[ID:" << p.paymentId << ", Student:" << p.studentId << ", Amount:" << p.amount << "]";
+        return os;
+    }
 
     string serialize() const
     {
@@ -1129,9 +1216,32 @@ public:
             (t.size() > 9 && t[9] != "-") ? t[9] : "");
     }
 
-    friend bool canBeRoommates(const Student &s1, const Student &s2);
-    friend void adminViewStudentDetailsEnhanced(const Student &s, ostream &out);
-    friend ostream &operator<<(ostream &os, const Student &s);
+    bool operator==(const Student &other) const
+    {
+        return id == other.id;
+    }
+
+    bool operator==(const string &searchId) const
+    {
+        return id == searchId;
+    }
+
+    bool operator<(const Student &other) const
+    {
+        return id < other.id;
+    }
+
+    bool operator>(const Student &other) const
+    {
+        return name > other.name;
+    }
+
+    // For output
+    friend ostream &operator<<(ostream &os, const Student &s)
+    {
+        os << "Student[ID:" << s.id << ", Name:" << s.name << ", Dept:" << s.dept << "]";
+        return os;
+    }
 };
 
 // ==================== ENHANCED STUDENT PROFILE VIEW ====================
@@ -1225,6 +1335,40 @@ public:
     Room(string rn = "", int cap = 1) : roomNo(rn), capacity(cap) {}
     bool hasSpace() const { return (int)occupants.size() < capacity; }
 
+    // OPERATOR OVERLOADING
+    bool operator==(const Room &other) const
+    {
+        return roomNo == other.roomNo;
+    }
+
+    bool operator==(const string &roomNumber) const
+    {
+        return roomNo == roomNumber;
+    }
+
+    bool operator<(const Room &other) const
+    {
+        return roomNo < other.roomNo;
+    }
+
+    bool operator>(const Room &other) const
+    {
+        return capacity > other.capacity;
+    }
+
+    // Bool conversion for availability check
+    operator bool() const
+    {
+        return hasSpace();
+    }
+
+    // Output operator
+    friend ostream &operator<<(ostream &os, const Room &r)
+    {
+        os << "Room[" << r.roomNo << ", Capacity:" << r.capacity << ", Occupied:" << r.occupants.size() << "]";
+        return os;
+    }
+
     string serialize() const
     {
         string occ = "-";
@@ -1289,6 +1433,42 @@ public:
 
     Complaint(string cid = "", string sid = "", string txt = "", string st = "pending")
         : complaintId(cid), studentId(sid), text(txt), status(st) {}
+
+    // OPERATOR OVERLOADING - FIXED
+    bool operator==(const Complaint &other) const
+    {
+        return complaintId == other.complaintId;
+    }
+
+    // Compare with complaint ID
+    bool operator==(const string &searchComplaintId) const
+    {
+        return complaintId == searchComplaintId;
+    }
+
+    // Compare with student ID - use different function
+    bool hasStudentId(const string &searchStudentId) const
+    {
+        return studentId == searchStudentId;
+    }
+
+    // Compare complaint status
+    bool hasStatus(const string &statusStr) const
+    {
+        return status == statusStr;
+    }
+
+    bool operator<(const Complaint &other) const
+    {
+        return complaintId < other.complaintId;
+    }
+
+    // Output operator
+    friend ostream &operator<<(ostream &os, const Complaint &c)
+    {
+        os << "Complaint[ID:" << c.complaintId << ", Student:" << c.studentId << ", Status:" << c.status << "]";
+        return os;
+    }
 
     string serialize() const
     {
@@ -1396,7 +1576,7 @@ private:
     Student *findStudentById(const string &id)
     {
         for (auto &s : students)
-            if (s.getId() == id)
+            if (s == id)
                 return &s;
         return nullptr;
     }
@@ -1404,7 +1584,7 @@ private:
     Room *findRoomByNo(const string &rno)
     {
         for (auto &r : rooms)
-            if (r.roomNo == rno)
+            if (r == rno)
                 return &r;
         return nullptr;
     }
@@ -1412,7 +1592,7 @@ private:
     MealPlan *findMealPlanByStudentId(const string &sid)
     {
         for (auto &mp : mealPlans)
-            if (mp.studentId == sid)
+            if (mp == sid)
                 return &mp;
         return nullptr;
     }
@@ -1420,7 +1600,7 @@ private:
     DailyMenu *findMenuByDate(const string &date)
     {
         for (auto &m : menus)
-            if (m.date == date)
+            if (m == date)
                 return &m;
         return nullptr;
     }
@@ -2145,104 +2325,23 @@ public:
         }
     }
 
-    // 🔥 NEW METHOD USING FRIEND FUNCTION
-    void findPotentialRoommates(const string &sid)
+    void sortStudentsById()
     {
-        Student *current = findStudentById(sid);
-        if (!current)
-        {
-            printError("Student not found!");
-            return;
-        }
-
-        if (!current->getRoom().empty())
-        {
-            printWarning("Student already has a room assigned.");
-            return;
-        }
-
-        vector<Student *> potentialRoommates;
-
-        for (auto &student : students)
-        {
-            if (student.getId() != sid && canBeRoommates(*current, student))
-            {
-                potentialRoommates.push_back(&student);
-            }
-        }
-
-        // Display results
-        clearScreen();
-        printHeader("POTENTIAL ROOMMATES FOR " + current->getName());
-
-        if (potentialRoommates.empty())
-        {
-            printWarning("No compatible roommates found!");
-        }
-        else
-        {
-            cout << CYAN << "🤝 Compatible Roommates (Same Batch & Department):\n"
-                 << RESET;
-            for (size_t i = 0; i < potentialRoommates.size(); i++)
-            {
-                cout << "   " << (i + 1) << ". " << potentialRoommates[i]->getName()
-                     << " (" << potentialRoommates[i]->getId() << ")\n";
-                cout << "      Room: " << (potentialRoommates[i]->getRoom().empty() ? RED "Available" : GREEN + potentialRoommates[i]->getRoom()) << RESET << "\n\n";
-            }
-        }
-
-        pauseAndClear();
+        sort(students.begin(), students.end()); // Uses overloaded < operator
     }
 
-    // 🔥 NEW METHOD USING FRIEND FUNCTION FOR ADMIN
-    void adminViewStudentDetails(const string &sid);
+    void sortRoomsByCapacity()
+    {
+        sort(rooms.begin(), rooms.end(), greater<Room>()); // Uses overloaded > operator
+    }
+
+    void sortPaymentsByAmount()
+    {
+        sort(payments.begin(), payments.end(), greater<Payment>()); // Uses overloaded > operator
+    }
 };
 
 // ------------------ HallSystem Private Methods Implementation ------------------
-
-void HallSystem::adminViewStudentDetails(const string &sid)
-{
-    Student *s = findStudentById(sid);
-    if (!s)
-    {
-        printError("Student not found!");
-        pauseAndClear();
-        return;
-    }
-
-    clearScreen();
-    // Using our friend function
-    adminViewStudentDetailsEnhanced(*s, cout);
-
-    // Show additional room information if assigned
-    if (!s->getRoom().empty())
-    {
-        Room *r = findRoomByNo(s->getRoom());
-        if (r)
-        {
-            cout << "\n"
-                 << CYAN << "🏠 Room Details:\n"
-                 << RESET;
-            cout << "   Capacity: " << r->capacity << " | Occupied: " << r->occupants.size() << "\n";
-            if (!r->occupants.empty())
-            {
-                cout << "   Roommates: ";
-                for (size_t i = 0; i < r->occupants.size(); i++)
-                {
-                    if (r->occupants[i] != sid)
-                    {
-                        Student *roommate = findStudentById(r->occupants[i]);
-                        if (roommate)
-                            cout << roommate->getName() << " ";
-                    }
-                }
-                cout << "\n";
-            }
-        }
-    }
-
-    pauseAndClear();
-}
 
 void HallSystem::updateStudentInLoginFile(const string &sid, const string &field, const string &value)
 {
@@ -3479,11 +3578,10 @@ void HallSystem::manageMealPlan(const string &sid)
     printHeader("MEAL PLAN MANAGEMENT");
 
     MealPlan *mp = findMealPlanByStudentId(sid);
-    if (!mp)
-    {
-        printInfo("Creating new meal plan...");
-        mealPlans.emplace_back(sid, true, true);
-        mp = findMealPlanByStudentId(sid);
+    if (!mp || !(*mp))
+    { // Using overloaded bool operator - checks if meal plan is active
+        printInfo("No active meal plan found.");
+        return;
     }
 
     cout << "\n"
@@ -4105,7 +4203,7 @@ void HallSystem::studentViewPaymentSlips(const string &sid)
             p->status,
             p->date == "-" ? "N/A" : p->date};
 
-        string color = (p->status == "paid") ? "green" : "red";
+        string color = (p->hasStatus("paid")) ? "green" : "red";
         printTableRow(row, widths, color);
 
         if (p->status == "pending")
@@ -4183,7 +4281,7 @@ void HallSystem::makePayment(const string &sid)
     Payment *selectedPayment = nullptr;
     for (auto &p : payments)
     {
-        if (p.paymentId == paymentId && p.studentId == sid && p.status == "pending")
+        if (p == paymentId && p.hasStudentId(sid) && p.hasStatus("pending"))
         {
             selectedPayment = &p;
             break;
@@ -4374,7 +4472,7 @@ void HallSystem::adminViewPayments()
             p.status,
             p.date == "-" ? "N/A" : p.date};
 
-        string color = (p.status == "paid") ? "green" : "red";
+        string color = (p.hasStatus("paid")) ? "green" : "red";
         printTableRow(row, widths, color);
 
         if (p.status == "paid")
@@ -4450,7 +4548,7 @@ void HallSystem::adminSearchPayment()
     vector<Payment *> studentPayments;
     for (auto &p : payments)
     {
-        if (p.studentId == sid)
+        if (p.hasStudentId(sid))
             studentPayments.push_back(&p);
     }
 
@@ -5205,28 +5303,14 @@ void HallSystem::assignRoom()
     getline(cin, rno);
 
     Room *r = findRoomByNo(rno);
-    if (!r)
-    {
-        printWarning("Room not found. Do you want to add it? (y/n): ");
-        char c;
-        cin >> c;
-        if (c == 'y' || c == 'Y')
-        {
-            int cap;
-            cout << YELLOW << "  Enter Capacity: " << RESET;
-            cin >> cap;
-            rooms.emplace_back(rno, cap);
-            r = findRoomByNo(rno);
-            printSuccess("Room added!");
-        }
-        else
-        {
-            pauseAndClear();
-            return;
-        }
+    if (!(*r))
+    { // Using overloaded bool operator - checks if room has space
+        printError("Room is full! Cannot assign.");
+        pauseAndClear();
+        return;
     }
 
-    if (!r->hasSpace())
+    if (!(*r))
     {
         printError("Room is full! Cannot assign.");
         pauseAndClear();
@@ -5294,10 +5378,10 @@ void HallSystem::viewComplaints()
         cout << CYAN << "  🆔 " << c.complaintId << RESET;
         cout << " | Student: " << YELLOW << c.studentId << RESET;
 
-        if (c.status == "pending")
+        if (c.hasStatus("pending"))
             cout << " | Status: " << RED << "⏳ " << c.status << RESET << "\n";
         else
-            cout << " | Status: " << GREEN << "✓ " << c.status << RESET << "\n";
+            cout << " | Status: " << GREEN << "✅ " << c.status << RESET << "\n";
 
         cout << "     📝 " << c.text << "\n\n";
     }
@@ -5315,7 +5399,7 @@ void HallSystem::replyComplaint()
 
     for (auto &c : complaints)
     {
-        if (c.complaintId == cid)
+        if (c == cid)
         {
             cout << "\n"
                  << CYAN << "  ═══ Complaint Details ═══\n"
@@ -5443,15 +5527,6 @@ void HallSystem::adminMenu()
             clearScreen();
             showDashboardAnalytics();
             break;
-        case 17:{
-            clearScreen();
-            cout << YELLOW << "Enter Student ID for detailed view: " << RESET;
-            string sid;
-            cin >> ws;
-            getline(cin, sid);
-            adminViewStudentDetails(sid);
-            break;
-        }
         default:
             printError("Invalid choice!");
             pauseAndClear();
@@ -5585,48 +5660,11 @@ void HallSystem::studentMenu(const string &sid)
             printBox("See you soon! 👋");
             pauseAndClear();
             return;
-        case 15: // Add this new option
-            clearScreen();
-            findPotentialRoommates(sid);
-            break;
         default:
             printError("Invalid choice!");
             pauseAndClear();
         }
     }
-}
-
-// Friend function implementation
-bool canBeRoommates(const Student &s1, const Student &s2)
-{
-    // Now we can access private members directly because we're friends!
-    bool sameBatch = (s1.batch == s2.batch);
-    bool sameDept = (s1.dept == s2.dept);
-    bool eitherHasNoRoom = (s1.roomNo.empty() || s2.roomNo.empty());
-
-    return sameBatch && sameDept && eitherHasNoRoom;
-}
-
-void adminViewStudentDetailsEnhanced(const Student& s, ostream& out) {
-    out << MAGENTA << BOLD << "🔒 ADMIN DETAILED VIEW" << RESET << "\n";
-    out << "╔════════════════════════════════════════╗\n";
-    out << "║ " << CYAN << "Student: " << s.getName() << RESET << " (" << YELLOW << s.getId() << RESET << ")\n";
-    out << "║ " << "Department: " << s.dept << " | Batch: " << s.batch << "\n";
-    out << "║ " << "Room: " << (s.roomNo.empty() ? RED "Unassigned" : GREEN + s.roomNo) << RESET << "\n";
-    out << "║ " << "Email: " << (s.email.empty() ? "Not set" : s.email) << "\n";
-    if (!s.age.empty()) out << "║ " << "Age: " << s.age << "\n";
-    out << "╚════════════════════════════════════════╝\n";
-}
-
-ostream &operator<<(ostream &os, const Student &s)
-{
-    os << CYAN << "🎓 " << s.name << RESET << " (" << YELLOW << s.id << RESET << ")\n";
-    os << "   " << s.dept << " | Batch: " << s.batch;
-    if (!s.roomNo.empty())
-    {
-        os << " | Room: " << GREEN << s.roomNo << RESET;
-    }
-    return os;
 }
 
 // ------------------ Main Function ------------------
