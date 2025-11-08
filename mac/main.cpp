@@ -18,28 +18,12 @@
 #define WHITE "\033[37m"
 
 // Background colors
-#define BG_BLACK "\033[40m"
 #define BG_RED "\033[41m"
 #define BG_GREEN "\033[42m"
-#define BG_YELLOW "\033[43m"
-#define BG_BLUE "\033[44m"
-#define BG_MAGENTA "\033[45m"
-#define BG_CYAN "\033[46m"
-#define BG_WHITE "\033[47m"
 
 // Style
 #define BOLD "\033[1m"
 #define RESET "\033[0m"
-
-void setColor(int color) {}
-#define COLOR_RED 0
-#define COLOR_GREEN 0
-#define COLOR_YELLOW 0
-#define COLOR_BLUE 0
-#define COLOR_CYAN 0
-#define COLOR_MAGENTA 0
-#define COLOR_WHITE 0
-#define COLOR_RESET 0
 
 using namespace std;
 
@@ -60,7 +44,7 @@ void pauseAndClear()
 
     while (true)
     {
-        cout << "\r" << MAGENTA << BOLD << "Press any key to continue" << RESET 
+        cout << "\r" << MAGENTA << BOLD << "Press any key to continue" << RESET
              << YELLOW << dots[i % 3] << RESET << "   ";
         cout.flush();
 
@@ -104,12 +88,6 @@ void printHeader(const string &title)
 
     cout << "╚════════════════════════════════════════════════════════════════╝\n"
          << RESET;
-}
-
-void printCentered(const string &text, int width = 64)
-{
-    int padding = (width - text.length()) / 2;
-    cout << string(padding, ' ') << text << string(width - padding - text.length(), ' ') << "\n";
 }
 
 void printSuccess(const string &message)
@@ -157,26 +135,6 @@ void printBox(const string &content)
     cout << BLUE << "+" << string(length + 2, '-') << "+\n";
     cout << "| " << WHITE << content << BLUE << " |\n";
     cout << "+" << string(length + 2, '-') << "+" << RESET << "\n";
-}
-
-void printProgressBar(int current, int total, const string &label = "")
-{
-    int barWidth = 40;
-    float progress = (float)current / total;
-    int pos = barWidth * progress;
-
-    cout << label << " [";
-    for (int i = 0; i < barWidth; ++i)
-    {
-        if (i < pos)
-            cout << GREEN << "█" << RESET;
-        else if (i == pos)
-            cout << GREEN << "█" << RESET;
-        else
-            cout << "░";
-    }
-    cout << "] " << int(progress * 100.0) << "%\r";
-    cout.flush();
 }
 
 void printTableHeader(const vector<string> &headers, const vector<int> &widths)
@@ -316,8 +274,8 @@ void displayMainMenu()
          << RESET;
     printSeparator();
 
-    printMenuOption(1, "🔐 Admin Login");
-    printMenuOption(2, "📝 Admin Registration");
+    printMenuOption(1, "🔐 Administration Login");
+    printMenuOption(2, "📝 Administration Registration");
     printMenuOption(3, "👤 Student Login");
     printMenuOption(4, "🔑 Forgot Password");
     printMenuOption(5, "🚪 Exit", true);
@@ -326,9 +284,9 @@ void displayMainMenu()
     cout << YELLOW << "\n   Enter your choice: " << RESET;
 }
 
-void displayAdminMenu(const string &adminName)
+void displayAdministrationMenu(const string &administrationName)
 {
-    printDashboardHeader("ADMIN", adminName);
+    printDashboardHeader("ADMINISTRATION", administrationName);
 
     cout << "\n"
          << CYAN << BOLD << "   📊 MAIN OPERATIONS\n"
@@ -357,7 +315,7 @@ void displayAdminMenu(const string &adminName)
     cout << "\n"
          << CYAN << BOLD << "   ⚙️  SYSTEM\n"
          << RESET;
-    printMenuOption(13, "🗑️  Delete Admin Account");
+    printMenuOption(13, "🗑️  Delete Administration Account");
     printMenuOption(14, "🚪 Logout");
     printMenuOption(15, "💾 Save & Exit", true);
 
@@ -384,7 +342,7 @@ void displayStudentMenu(const string &studentName)
     cout << "\n"
          << CYAN << BOLD << "   🔄 REQUESTS\n"
          << RESET;
-    printMenuOption(4, "📢 Submit Complaint");
+    printMenuOption(4, "📢 Complaint");
     printMenuOption(5, "🔀 Room Swap Request");
     printMenuOption(6, "👁️  View Swap Requests");
 
@@ -495,6 +453,7 @@ public:
     virtual void display() const = 0;
     string getId() const { return id; }
     string getName() const { return name; }
+    void setName(const string &newName) { name = newName; }
     virtual ~Person() {}
 };
 
@@ -512,7 +471,7 @@ public:
         return fin.good();
     }
 
-    void registerAdmin();
+    void registerAdministration();
 };
 
 class Login
@@ -603,7 +562,7 @@ public:
         fin.close();
     }
 
-    bool adminLogin();
+    bool administrationLogin();
 
     string studentLogin();
     bool forgotPassword()
@@ -619,7 +578,7 @@ public:
             string title = "🔑 FORGOT PASSWORD";
             int titlePadding = (64 - title.length()) / 2;
             cout << "║" << string(titlePadding, ' ') << title
-                 << string(64 - titlePadding - title.length(), ' ') << "║\n";
+                 << string(64 - titlePadding - title.length(), ' ') << "  ║\n";
 
             cout << "╚════════════════════════════════════════════════════════════════╝\n"
                  << RESET;
@@ -635,10 +594,10 @@ public:
 
             // Menu options with beautiful icons and descriptions
             cout << "\n"
-                 << CYAN << BOLD << "  👨‍💼 Admin Account Recovery:\n"
+                 << CYAN << BOLD << "  👨‍💼 Administration Account Recovery:\n"
                  << RESET;
 
-            printMenuOption(1, "🛡️  Admin Password Reset", false);
+            printMenuOption(1, "🛡️  Administration Password Reset", false);
 
             cout << "\n"
                  << CYAN << BOLD << "  👨‍🎓 Student Account Recovery:\n"
@@ -699,8 +658,28 @@ public:
 
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-            string role = (choice == 1) ? "admin" : "student";
-            string userType = (choice == 1) ? "Admin" : "Student";
+            string role;
+            string userType;
+
+            if (choice == 1)
+            {
+                role = "administration";
+                userType = "Administration";
+            }
+            else if (choice == 2)
+            {
+                role = "student";
+                userType = "Student";
+            }
+            else
+            {
+                // Handle invalid choice (though it should be validated earlier)
+                role = "unknown";
+                userType = "Unknown";
+                printError("Invalid user type selection!");
+                pauseAndClear();
+                return false;
+            }
 
             // Show loading animation
             showLoadingAnimation("Loading " + userType + " Password Reset", 1);
@@ -714,7 +693,7 @@ public:
             string resetTitle = "🔑 " + userType + " PASSWORD RESET";
             int resetPadding = (64 - resetTitle.length()) / 2;
             cout << "║" << string(resetPadding, ' ') << resetTitle
-                 << string(64 - resetPadding - resetTitle.length(), ' ') << "║\n";
+                 << string(64 - resetPadding - resetTitle.length(), ' ') << "  ║\n";
 
             cout << "╚════════════════════════════════════════════════════════════════╝\n"
                  << RESET;
@@ -742,14 +721,12 @@ public:
                 clearScreen();
                 cout << RED << BOLD;
                 cout << "\n╔════════════════════════════════════════════════════════════════╗\n";
-                cout << "║                     ❌ USER NOT FOUND                         ║\n";
+                cout << "║                     ❌ USER NOT FOUND                          ║\n";
                 cout << "╚════════════════════════════════════════════════════════════════╝\n"
                      << RESET;
                 cout << "\n"
                      << YELLOW << "   " << userType << " ID '" << id << "' not found in the system." << RESET << "\n";
-                cout << "\n"
-                     << CYAN << "   Press Enter to continue..." << RESET;
-                cin.get();
+                pauseAndClear();
                 continue;
             }
 
@@ -799,7 +776,7 @@ public:
                 cout << "\n"
                      << RED << BOLD << "  ⚠️  NO RECOVERY METHODS AVAILABLE\n"
                      << RESET;
-                cout << YELLOW << "  Please contact system administrator for password reset.\n"
+                cout << YELLOW << "  Please contact system administration for password reset.\n"
                      << RESET;
                 cout << "\n"
                      << CYAN << "   Press Enter to continue..." << RESET;
@@ -912,6 +889,36 @@ public:
     MealPlan(string sid = "", bool lunch = true, bool dinner = true)
         : studentId(sid), hasLunch(lunch), hasDinner(dinner) {}
 
+    // OPERATOR OVERLOADING
+    bool operator==(const MealPlan &other) const
+    {
+        return studentId == other.studentId;
+    }
+
+    bool operator==(const string &searchId) const
+    {
+        return studentId == searchId;
+    }
+
+    // Bool conversion for active check
+    operator bool() const
+    {
+        return hasLunch || hasDinner;
+    }
+
+    // Combined meal check
+    bool operator&&(const MealPlan &other) const
+    {
+        return (hasLunch && other.hasLunch) && (hasDinner && other.hasDinner);
+    }
+
+    // Output operator
+    friend ostream &operator<<(ostream &os, const MealPlan &mp)
+    {
+        os << "MealPlan[Student:" << mp.studentId << ", Lunch:" << mp.hasLunch << ", Dinner:" << mp.hasDinner << "]";
+        return os;
+    }
+
     string serialize() const
     {
         string offDatesStr = "-";
@@ -950,6 +957,14 @@ public:
         }
         return mp;
     }
+
+    void display() const
+    {
+        cout << MAGENTA << "  🍽️  MealPlan[" << RESET << studentId << MAGENTA << "] " << RESET;
+        cout << "Lunch: " << (hasLunch ? GREEN "✓" : RED "✗") << RESET;
+        cout << " | Dinner: " << (hasDinner ? GREEN "✓" : RED "✗") << RESET;
+        cout << " | Off Days: " << YELLOW << offDates.size() << RESET << "\n";
+    }
 };
 
 class DailyMenu
@@ -961,6 +976,35 @@ public:
 
     DailyMenu(string d = "", string l = "", string dn = "")
         : date(d), lunchMenu(l), dinnerMenu(dn) {}
+
+    // OPERATOR OVERLOADING
+    bool operator==(const DailyMenu &other) const
+    {
+        return date == other.date;
+    }
+
+    bool operator==(const string &dateStr) const
+    {
+        return date == dateStr;
+    }
+
+    bool operator<(const DailyMenu &other) const
+    {
+        return date < other.date;
+    }
+
+    // Check if menu is set
+    operator bool() const
+    {
+        return !lunchMenu.empty() || !dinnerMenu.empty();
+    }
+
+    // Output operator
+    friend ostream &operator<<(ostream &os, const DailyMenu &dm)
+    {
+        os << "DailyMenu[Date:" << dm.date << ", Lunch:" << (dm.lunchMenu.empty() ? "Not set" : "Set") << "]";
+        return os;
+    }
 
     string serialize() const
     {
@@ -980,6 +1024,13 @@ public:
         string dn = parts.size() > 2 ? parts[2] : "";
         return DailyMenu(d, l, dn);
     }
+
+    void display() const
+    {
+        cout << GREEN << "  📋 Menu[" << RESET << date << GREEN << "] " << RESET;
+        cout << "Lunch: " << (lunchMenu.empty() ? RED "Not set" : WHITE + lunchMenu) << RESET;
+        cout << " | Dinner: " << (dinnerMenu.empty() ? RED "Not set" : WHITE + dinnerMenu) << RESET << "\n";
+    }
 };
 
 class Payment
@@ -994,6 +1045,47 @@ public:
 
     Payment(string pid = "", string sid = "", string my = "", double amt = 0, string st = "pending", string d = "")
         : paymentId(pid), studentId(sid), monthYear(my), amount(amt), status(st), date(d) {}
+
+    // OPERATOR OVERLOADING - FIXED
+    bool operator==(const Payment &other) const
+    {
+        return paymentId == other.paymentId;
+    }
+
+    // Compare with payment ID
+    bool operator==(const string &searchPaymentId) const
+    {
+        return paymentId == searchPaymentId;
+    }
+
+    // Compare with student ID - use different function name or parameter
+    bool hasStudentId(const string &searchStudentId) const
+    {
+        return studentId == searchStudentId;
+    }
+
+    // Compare payment status
+    bool hasStatus(const string &statusStr) const
+    {
+        return status == statusStr;
+    }
+
+    bool operator<(const Payment &other) const
+    {
+        return amount < other.amount;
+    }
+
+    bool operator>(const Payment &other) const
+    {
+        return amount > other.amount;
+    }
+
+    // Output operator
+    friend ostream &operator<<(ostream &os, const Payment &p)
+    {
+        os << "Payment[ID:" << p.paymentId << ", Student:" << p.studentId << ", Amount:" << p.amount << "]";
+        return os;
+    }
 
     string serialize() const
     {
@@ -1016,35 +1108,114 @@ public:
         string d = parts.size() > 5 ? parts[5] : "";
         return Payment(pid, sid, my, amt, st, d);
     }
+
+    void display() const
+    {
+        cout << CYAN << "  💰 Payment[" << RESET << paymentId << CYAN << "] " << RESET;
+        cout << "Student: " << YELLOW << studentId << RESET;
+        cout << " | Month: " << BLUE << monthYear << RESET;
+        cout << " | Amount: " << GREEN << amount << " Tk" << RESET;
+        cout << " | Status: " << (status == "paid" ? GREEN : RED) << status << RESET << "\n";
+    }
 };
 
 class Student : public Person
 {
 private:
-    string dept, batch, roomNo, email, age, homeDistrict, college, school;
+    string *dept;
+    string *batch;
+    string *roomNo;
+    string *email;
+    string *age;
+    string *homeDistrict;
+    string *college;
+    string *school;
 
 public:
+    // Default Constructor
     Student(string id_ = "", string name_ = "", string dept_ = "", string batch_ = "", string roomNo_ = "",
             string email_ = "", string age_ = "", string homeDistrict_ = "", string college_ = "", string school_ = "")
-        : Person(name_, id_), dept(dept_), batch(batch_), roomNo(roomNo_),
-          email(email_), age(age_), homeDistrict(homeDistrict_), college(college_), school(school_) {}
+        : Person(name_, id_)
+    {
 
-    void setRoom(const string &r) { roomNo = r; }
-    void setName(const string &n) { name = n; }
-    void setEmail(const string &e) { email = e; }
-    void setAge(const string &a) { age = a; }
-    void setHomeDistrict(const string &h) { homeDistrict = h; }
-    void setCollege(const string &c) { college = c; }
-    void setSchool(const string &s) { school = s; }
+        // Dynamic memory allocation
+        dept = new string(dept_);
+        batch = new string(batch_);
+        roomNo = new string(roomNo_);
+        email = new string(email_);
+        age = new string(age_);
+        homeDistrict = new string(homeDistrict_);
+        college = new string(college_);
+        school = new string(school_);
+    }
 
-    string getRoom() const { return roomNo; }
-    string getDept() const { return dept; }
-    string getBatch() const { return batch; }
-    string getEmail() const { return email; }
-    string getAge() const { return age; }
-    string getHomeDistrict() const { return homeDistrict; }
-    string getCollege() const { return college; }
-    string getSchool() const { return school; }
+    // Copy Constructor
+    Student(const Student &other) : Person(other.name, other.id)
+    {
+        dept = new string(*other.dept);
+        batch = new string(*other.batch);
+        roomNo = new string(*other.roomNo);
+        email = new string(*other.email);
+        age = new string(*other.age);
+        homeDistrict = new string(*other.homeDistrict);
+        college = new string(*other.college);
+        school = new string(*other.school);
+    }
+
+    // Assignment Operator
+    Student &operator=(const Student &other)
+    {
+        if (this != &other)
+        {
+            // Copy base class members
+            name = other.name;
+            id = other.id;
+
+            // Copy derived class members with deep copy
+            *dept = *other.dept;
+            *batch = *other.batch;
+            *roomNo = *other.roomNo;
+            *email = *other.email;
+            *age = *other.age;
+            *homeDistrict = *other.homeDistrict;
+            *college = *other.college;
+            *school = *other.school;
+        }
+        return *this;
+    }
+
+    // Destructor
+    ~Student()
+    {
+        delete dept;
+        delete batch;
+        delete roomNo;
+        delete email;
+        delete age;
+        delete homeDistrict;
+        delete college;
+        delete school;
+    }
+
+    // Getters
+    string getRoom() const { return *roomNo; }
+    string getDept() const { return *dept; }
+    string getBatch() const { return *batch; }
+    string getEmail() const { return *email; }
+    string getAge() const { return *age; }
+    string getHomeDistrict() const { return *homeDistrict; }
+    string getCollege() const { return *college; }
+    string getSchool() const { return *school; }
+
+    // Setters
+    void setRoom(const string &r) { *roomNo = r; }
+    void setDept(const string &d) { *dept = d; }
+    void setBatch(const string &b) { *batch = b; }
+    void setEmail(const string &e) { *email = e; }
+    void setAge(const string &a) { *age = a; }
+    void setHomeDistrict(const string &h) { *homeDistrict = h; }
+    void setCollege(const string &c) { *college = c; }
+    void setSchool(const string &s) { *school = s; }
 
     void display() const override
     {
@@ -1055,24 +1226,24 @@ public:
         cout << "  📋 Basic Information:\n";
         cout << "  ├─ Student ID    : " << id << "\n";
         cout << "  ├─ Name          : " << name << "\n";
-        cout << "  ├─ Department    : " << dept << "\n";
-        cout << "  ├─ Batch         : " << batch << "\n";
-        if (!age.empty())
-            cout << "  ├─ Age           : " << age << "\n";
-        cout << "  └─ Email         : " << (email.empty() ? "Not set" : email) << "\n\n";
+        cout << "  ├─ Department    : " << *dept << "\n";
+        cout << "  ├─ Batch         : " << *batch << "\n";
+        if (!(*age).empty())
+            cout << "  ├─ Age           : " << *age << "\n";
+        cout << "  └─ Email         : " << ((*email).empty() ? "Not set" : *email) << "\n\n";
 
         cout << "  🏠 Accommodation:\n";
-        cout << "  └─ Room Number   : " << (roomNo.empty() ? "Not assigned" : roomNo) << "\n\n";
+        cout << "  └─ Room Number   : " << ((*roomNo).empty() ? "Not assigned" : *roomNo) << "\n\n";
 
-        if (!homeDistrict.empty() || !college.empty() || !school.empty())
+        if (!(*homeDistrict).empty() || !(*college).empty() || !(*school).empty())
         {
             cout << "  📍 Additional Information:\n";
-            if (!homeDistrict.empty())
-                cout << "  ├─ Home District : " << homeDistrict << "\n";
-            if (!college.empty())
-                cout << "  ├─ College       : " << college << "\n";
-            if (!school.empty())
-                cout << "  └─ School        : " << school << "\n";
+            if (!(*homeDistrict).empty())
+                cout << "  ├─ Home District : " << *homeDistrict << "\n";
+            if (!(*college).empty())
+                cout << "  ├─ College       : " << *college << "\n";
+            if (!(*school).empty())
+                cout << "  └─ School        : " << *school << "\n";
             cout << "\n";
         }
 
@@ -1081,10 +1252,13 @@ public:
 
     string serialize() const
     {
-        return id + "|" + name + "|" + dept + "|" + batch + "|" + (roomNo.empty() ? "-" : roomNo) + "|" +
-               (email.empty() ? "-" : email) + "|" + (age.empty() ? "-" : age) + "|" +
-               (homeDistrict.empty() ? "-" : homeDistrict) + "|" + (college.empty() ? "-" : college) + "|" +
-               (school.empty() ? "-" : school);
+        return id + "|" + name + "|" + *dept + "|" + *batch + "|" +
+               ((*roomNo).empty() ? "-" : *roomNo) + "|" +
+               ((*email).empty() ? "-" : *email) + "|" +
+               ((*age).empty() ? "-" : *age) + "|" +
+               ((*homeDistrict).empty() ? "-" : *homeDistrict) + "|" +
+               ((*college).empty() ? "-" : *college) + "|" +
+               ((*school).empty() ? "-" : *school);
     }
 
     static Student deserialize(const string &line)
@@ -1114,6 +1288,32 @@ public:
             (t.size() > 7 && t[7] != "-") ? t[7] : "",
             (t.size() > 8 && t[8] != "-") ? t[8] : "",
             (t.size() > 9 && t[9] != "-") ? t[9] : "");
+    }
+
+    bool operator==(const Student &other) const
+    {
+        return id == other.id;
+    }
+
+    bool operator==(const string &searchId) const
+    {
+        return id == searchId;
+    }
+
+    bool operator<(const Student &other) const
+    {
+        return id < other.id;
+    }
+
+    bool operator>(const Student &other) const
+    {
+        return name > other.name;
+    }
+
+    friend ostream &operator<<(ostream &os, const Student &s)
+    {
+        os << "Student[ID:" << s.id << ", Name:" << s.name << ", Dept:" << *s.dept << "]";
+        return os;
     }
 };
 
@@ -1170,32 +1370,66 @@ void displayStudentProfileEnhanced(const Student &s)
 }
 
 // ==================== ENHANCED TABLE VIEW ====================
-
 void displayStudentsTableEnhanced(const vector<Student> &students)
 {
     clearScreen();
-    printHeader("STUDENTS LIST");
 
-    vector<string> headers = {"Student ID", "Name", "Department", "Batch", "Room No"};
-    vector<int> widths = {15, 25, 15, 10, 15};
+    // Modern Header
+    cout << BLUE << BOLD;
+    cout << "\n    ╔════════════════════════════════════════════════════════════════╗\n";
+    cout << "    ║                    📋 STUDENTS DIRECTORY                       ║\n";
+    cout << "    ╚════════════════════════════════════════════════════════════════╝\n"
+         << RESET;
 
-    printTableHeader(headers, widths);
+    if (students.empty())
+    {
+        printWarning("No students found in the system.");
+        return;
+    }
+
+    // Modern Table Design
+    cout << MAGENTA << "  ╔════════════╦══════════════════════╦════════════╦════════╦════════════╗\n"
+         << RESET;
+    cout << MAGENTA << "  ║ " << CYAN << BOLD << "Student ID " << MAGENTA << "║ " << CYAN << BOLD << "Name               " << MAGENTA << "  ║ " << CYAN << BOLD << "Department " << MAGENTA << "║ " << CYAN << BOLD << "Batch " << MAGENTA << " ║ " << CYAN << BOLD << "Room      " << MAGENTA << " ║\n"
+         << RESET;
+    cout << MAGENTA << "  ╠════════════╬══════════════════════╬════════════╬════════╬════════════╣\n"
+         << RESET;
 
     for (const auto &s : students)
     {
-        vector<string> row = {
-            s.getId(),
-            s.getName(),
-            s.getDept(),
-            s.getBatch(),
-            s.getRoom().empty() ? "Not assigned" : s.getRoom()};
+        string nameDisplay = s.getName();
+        if (nameDisplay.length() > 18)
+        {
+            nameDisplay = nameDisplay.substr(0, 17) + ".";
+        }
 
-        string color = s.getRoom().empty() ? "yellow" : "green";
-        printTableRow(row, widths, color);
+        string roomDisplay = s.getRoom().empty() ? "None" : s.getRoom();
+        string roomColor = s.getRoom().empty() ? RED : GREEN;
+        string roomIcon = s.getRoom().empty() ? "🚫" : "✅";
+
+        cout << MAGENTA << "  ║ " << RESET
+             << YELLOW << setw(11) << left << s.getId() << MAGENTA << "║ " << RESET
+             << WHITE << setw(20) << left << nameDisplay << MAGENTA << " ║ " << RESET
+             << BLUE << setw(11) << left << s.getDept() << MAGENTA << "║ " << RESET
+             << GREEN << setw(7) << left << s.getBatch() << MAGENTA << "║ " << RESET
+             << roomColor << roomIcon << " " << setw(8) << left << roomDisplay << MAGENTA << "║\n"
+             << RESET;
     }
 
+    cout << MAGENTA << "  ╚════════════╩══════════════════════╩════════════╩════════╩════════════╝\n"
+         << RESET;
+
+    // Enhanced Statistics
+    int assigned = count_if(students.begin(), students.end(),
+                            [](const Student &s)
+                            { return !s.getRoom().empty(); });
+
+    cout << "\n  " << CYAN << "📈 QUICK STATS: " << RESET
+         << GREEN << "🏠 " << assigned << " with rooms" << RESET
+         << " • " << RED << "🚫 " << (students.size() - assigned) << " without rooms" << RESET
+         << " • " << YELLOW << "👥 " << students.size() << " total students" << RESET << "\n";
+
     printSeparator();
-    cout << GREEN << "\n   Total Students: " << students.size() << RESET << "\n";
 }
 
 class Room
@@ -1207,6 +1441,40 @@ public:
 
     Room(string rn = "", int cap = 1) : roomNo(rn), capacity(cap) {}
     bool hasSpace() const { return (int)occupants.size() < capacity; }
+
+    // OPERATOR OVERLOADING
+    bool operator==(const Room &other) const
+    {
+        return roomNo == other.roomNo;
+    }
+
+    bool operator==(const string &roomNumber) const
+    {
+        return roomNo == roomNumber;
+    }
+
+    bool operator<(const Room &other) const
+    {
+        return roomNo < other.roomNo;
+    }
+
+    bool operator>(const Room &other) const
+    {
+        return capacity > other.capacity;
+    }
+
+    // Bool conversion for availability check
+    operator bool() const
+    {
+        return hasSpace();
+    }
+
+    // Output operator
+    friend ostream &operator<<(ostream &os, const Room &r)
+    {
+        os << "Room[" << r.roomNo << ", Capacity:" << r.capacity << ", Occupied:" << r.occupants.size() << "]";
+        return os;
+    }
 
     string serialize() const
     {
@@ -1268,18 +1536,58 @@ public:
 class Complaint
 {
 public:
-    string complaintId, studentId, text, status;
+    string complaintId, studentId, text, status, adminReply; // Added adminReply
 
-    Complaint(string cid = "", string sid = "", string txt = "", string st = "pending")
-        : complaintId(cid), studentId(sid), text(txt), status(st) {}
+    Complaint(string cid = "", string sid = "", string txt = "", string st = "pending", string reply = "")
+        : complaintId(cid), studentId(sid), text(txt), status(st), adminReply(reply) {}
+
+    // OPERATOR OVERLOADING - FIXED
+    bool operator==(const Complaint &other) const
+    {
+        return complaintId == other.complaintId;
+    }
+
+    // Compare with complaint ID
+    bool operator==(const string &searchComplaintId) const
+    {
+        return complaintId == searchComplaintId;
+    }
+
+    // Compare with student ID - use different function
+    bool hasStudentId(const string &searchStudentId) const
+    {
+        return studentId == searchStudentId;
+    }
+
+    // Compare complaint status
+    bool hasStatus(const string &statusStr) const
+    {
+        return status == statusStr;
+    }
+
+    bool operator<(const Complaint &other) const
+    {
+        return complaintId < other.complaintId;
+    }
+
+    // Output operator
+    friend ostream &operator<<(ostream &os, const Complaint &c)
+    {
+        os << "Complaint[ID:" << c.complaintId << ", Student:" << c.studentId << ", Status:" << c.status << "]";
+        return os;
+    }
 
     string serialize() const
     {
-        string esc = text;
-        for (char &c : esc)
+        string escText = text;
+        string escReply = adminReply;
+        for (char &c : escText)
             if (c == '|')
                 c = '/';
-        return complaintId + "|" + studentId + "|" + esc + "|" + status;
+        for (char &c : escReply)
+            if (c == '|')
+                c = '/';
+        return complaintId + "|" + studentId + "|" + escText + "|" + status + "|" + escReply;
     }
 
     static Complaint deserialize(const string &line)
@@ -1301,13 +1609,20 @@ public:
             t.size() > 0 ? t[0] : "",
             t.size() > 1 ? t[1] : "",
             t.size() > 2 ? t[2] : "",
-            t.size() > 3 ? t[3] : "pending");
+            t.size() > 3 ? t[3] : "pending",
+            t.size() > 4 ? t[4] : "");
     }
 
     void display() const
     {
-        cout << "CID: " << complaintId << " | Student: " << studentId << " | Status: " << status << "\n";
-        cout << "  " << text << "\n";
+        cout << YELLOW << "  📢 Complaint[" << RESET << complaintId << YELLOW << "] " << RESET;
+        cout << "Student: " << CYAN << studentId << RESET;
+        cout << " | Status: " << (status == "pending" ? RED : GREEN) << status << RESET << "\n";
+        cout << "     📝 " << text << "\n";
+        if (!adminReply.empty())
+            cout << "     💬 Admin: " << GREEN << adminReply << RESET << "\n\n";
+        else
+            cout << "\n\n";
     }
 };
 
@@ -1348,8 +1663,10 @@ public:
 
     void display() const
     {
-        cout << "[" << requestId << "] Status: " << status << "\n";
-        cout << "  From: " << fromStudentId << " → To: " << toStudentId << "\n";
+        cout << BLUE << "  🔄 SwapRequest[" << RESET << requestId << BLUE << "] " << RESET;
+        cout << "From: " << YELLOW << fromStudentId << RESET;
+        cout << " → To: " << YELLOW << toStudentId << RESET;
+        cout << " | Status: " << (status == "pending" ? YELLOW : (status == "accepted" ? GREEN : RED)) << status << RESET << "\n";
     }
 };
 
@@ -1376,36 +1693,37 @@ private:
 
     LoginManager lm{LOGIN_FILE};
 
+    template <typename T, typename Key>
+    T *findById(vector<T> &container, const Key &id)
+    {
+        for (auto &item : container)
+        {
+            if (item == id)
+            { // Uses overloaded == operator
+                return &item;
+            }
+        }
+        return nullptr;
+    }
+
     Student *findStudentById(const string &id)
     {
-        for (auto &s : students)
-            if (s.getId() == id)
-                return &s;
-        return nullptr;
+        return findById<Student, string>(students, id);
     }
 
     Room *findRoomByNo(const string &rno)
     {
-        for (auto &r : rooms)
-            if (r.roomNo == rno)
-                return &r;
-        return nullptr;
+        return findById<Room, string>(rooms, rno);
     }
 
     MealPlan *findMealPlanByStudentId(const string &sid)
     {
-        for (auto &mp : mealPlans)
-            if (mp.studentId == sid)
-                return &mp;
-        return nullptr;
+        return findById<MealPlan, string>(mealPlans, sid);
     }
 
     DailyMenu *findMenuByDate(const string &date)
     {
-        for (auto &m : menus)
-            if (m.date == date)
-                return &m;
-        return nullptr;
+        return findById<DailyMenu, string>(menus, date);
     }
 
     // Forward declarations of private methods
@@ -1418,58 +1736,82 @@ private:
     void manageMealPlan(const string &sid);
     void markMealOff(const string &sid);
     void viewMealPlan(const string &sid);
-    void calculateMonthlyBill(const string &sid);
     void makePayment(const string &sid);
-    void adminUpdateMenu();
-    void adminViewPayments();
+    void administrationUpdateMenu();
+    void administrationViewPayments();
     void viewTodayMenu(const string &sid);
-    void adminCalculateAndGenerateBill();
-    void adminSearchPayment();
+    void administrationCalculateAndGenerateBill();
+    void administrationSearchPayment();
     void studentViewPaymentSlips(const string &sid);
     void updateStudentInLoginFile(const string &sid, const string &field, const string &value);
 
 public:
+    template <typename Container>
+    void displayContainer(const Container &container, const string &title)
+    {
+        clearScreen();
+        printHeader(title);
+
+        if (container.empty())
+        {
+            printWarning("No items found.");
+            return;
+        }
+
+        cout << "\n";
+        for (const auto &item : container)
+        {
+            item.display();
+        }
+
+        printSeparator();
+        cout << GREEN << "\n   📊 Total Items: " << container.size() << RESET << "\n";
+    }
+
     HallSystem() { loadAll(); }
 
     // ------------------ Student CRUD Functions ------------------
 
     void addStudent();
-
-    void viewStudents() const;
+    void viewStudents()
+    {
+        displayContainer(students, "STUDENTS LIST");
+        pauseAndClear();
+    }
     void deleteStudent();
-    void deleteAdmin()
+    void deleteAdministration()
     {
         clearScreen();
-        printHeader("DELETE ADMIN ACCOUNT");
+        printHeader("DELETE ADMINISTRATION ACCOUNT");
 
-        printWarning("⚠️  DANGER ZONE - ADMIN ACCOUNT DELETION");
+        printWarning("⚠️  DANGER ZONE - ADMINISTRATION ACCOUNT DELETION");
         cout << "\n";
 
-        // Show all admins
-        cout << CYAN << BOLD << "  📋 Current Admin Accounts:\n"
+        // Show all administrations
+        cout << CYAN << BOLD << "  📋 Current Administration Accounts:\n"
              << RESET;
         printSeparator();
 
-        vector<string> headers = {"Admin ID", "Name", "Email"};
+        vector<string> headers = {"Administration ID", "Name", "Email"};
         vector<int> widths = {20, 25, 30};
         printTableHeader(headers, widths);
 
-        int adminCount = 0;
+        int administrationCount = 0;
         ifstream fin(LOGIN_FILE);
         string line;
-        vector<tuple<string, string, string>> adminList; // id, name, email
+        vector<tuple<string, string, string>> administrationList; // id, name, email
 
         while (getline(fin, line))
         {
-            if (line.find("admin|") == 0)
+            if (line.find("administration|") == 0)
             {
                 stringstream ss(line);
                 string parts[7];
                 for (int i = 0; i < 7; i++)
                     getline(ss, parts[i], '|');
 
-                adminList.push_back(make_tuple(parts[2], parts[1], parts[4]));
-                adminCount++;
+                administrationList.push_back(make_tuple(parts[2], parts[1], parts[4]));
+                administrationCount++;
 
                 vector<string> row = {parts[2], parts[1], parts[4]};
                 printTableRow(row, widths);
@@ -1478,17 +1820,17 @@ public:
         fin.close();
 
         printSeparator();
-        cout << YELLOW << "\n  Total Admins: " << adminCount << RESET << "\n\n";
+        cout << YELLOW << "\n  Total Administrations: " << administrationCount << RESET << "\n\n";
 
-        if (adminCount <= 1)
+        if (administrationCount <= 1)
         {
-            printError("Cannot delete! At least one admin must remain in the system.");
-            printBox("System requires minimum 1 admin account 🔒");
+            printError("Cannot delete! At least one administration must remain in the system.");
+            printBox("System requires minimum 1 administration account 🔒");
             pauseAndClear();
             return;
         }
 
-        printWarning("Enter Admin ID to delete (or type '0' to cancel): ");
+        printWarning("Enter Administration ID to delete (or type '0' to cancel): ");
         cout << YELLOW << "  » " << RESET;
         string id;
         cin >> ws;
@@ -1501,33 +1843,33 @@ public:
             return;
         }
 
-        // Verify admin exists
-        bool adminExists = false;
-        for (const auto &admin : adminList)
+        // Verify administration exists
+        bool administrationExists = false;
+        for (const auto &administration : administrationList)
         {
-            if (get<0>(admin) == id)
+            if (get<0>(administration) == id)
             {
-                adminExists = true;
+                administrationExists = true;
                 break;
             }
         }
 
-        if (!adminExists)
+        if (!administrationExists)
         {
-            printError("Admin ID not found!");
+            printError("Administration ID not found!");
             pauseAndClear();
             return;
         }
 
         cout << "\n";
-        printWarning("Enter Admin Password for confirmation: ");
+        printWarning("Enter Administration Password for confirmation: ");
         cout << YELLOW << "  » " << RESET;
         string pass = readPassword();
 
         bool verified = false;
         for (const auto &l : lm.logins)
         {
-            if (l.getRole() == "admin" && l.getId() == id && l.getPassword() == pass)
+            if (l.getRole() == "administration" && l.getId() == id && l.getPassword() == pass)
             {
                 verified = true;
                 break;
@@ -1553,13 +1895,13 @@ public:
 
         if (confirm == "DELETE")
         {
-            showLoadingAnimation("Deleting admin account", 2);
+            showLoadingAnimation("Deleting administration account", 2);
 
             vector<string> lines;
             ifstream finRead(LOGIN_FILE);
             while (getline(finRead, line))
             {
-                if (line.find("admin|") == 0)
+                if (line.find("administration|") == 0)
                 {
                     stringstream ss(line);
                     string parts[7];
@@ -1584,7 +1926,7 @@ public:
             lm.loadLogins();
 
             clearScreen();
-            printSuccess("Admin account deleted successfully!");
+            printSuccess("Administration account deleted successfully!");
             printBox("Account removed from system 🗑️");
             cout << "\n";
             printInfo("Logging out for security reasons...");
@@ -1601,7 +1943,11 @@ public:
 
     // ------------------ Room Functions ------------------
     void addRoom();
-    void viewRooms() const;
+    void viewRooms()
+    {
+        displayContainer(rooms, "ROOMS LIST");
+        pauseAndClear();
+    }
     void assignRoomMenu()
     {
         while (true)
@@ -1674,7 +2020,7 @@ public:
             cout << "\n"
                  << CYAN << BOLD << "  🔙 Navigation:\n"
                  << RESET;
-            printMenuOption(6, "← Back to Admin Menu", true);
+            printMenuOption(6, "← Back to Administration Menu", true);
 
             printSeparator();
 
@@ -1724,7 +2070,7 @@ public:
             case 6:
                 // Elegant exit
                 clearScreen();
-                printSuccess("Returning to Admin Menu...");
+                printSuccess("Returning to Administration Menu...");
                 pauseAndClear();
                 return;
             default:
@@ -1950,7 +2296,12 @@ public:
 
     // ------------------ Complaint Functions ------------------
     void submitComplaint(const string &studentId);
-    void viewComplaints();
+    void viewComplaints()
+    {
+        displayContainer(complaints, "COMPLAINTS LIST");
+        pauseAndClear();
+    }
+    void viewComplaintStatus(const string &sid);
     void replyComplaint();
     // ------------------ File I/O ------------------
     void loadAll()
@@ -2047,7 +2398,7 @@ public:
 
     // ------------------ Menus ------------------
 
-    void adminMenu();
+    void administrationMenu();
     void studentMenu(const string &sid);
     void showDashboardAnalytics();
 
@@ -2058,8 +2409,8 @@ public:
 
         if (!reg.fileExists())
         {
-            cout << "No admin found. Register first admin.\n";
-            reg.registerAdmin();
+            cout << "No administration found. Register first administration.\n";
+            reg.registerAdministration();
         }
 
         lm.loadLogins();
@@ -2082,8 +2433,8 @@ public:
             {
             case 1:
                 clearScreen(); // ← এই line add করো
-                if (lm.adminLogin())
-                    adminMenu();
+                if (lm.administrationLogin())
+                    administrationMenu();
                 else
                 {
                     cout << "Invalid ID or password.\n";
@@ -2093,7 +2444,7 @@ public:
 
             case 2:
                 clearScreen(); // ← এই line add করো
-                reg.registerAdmin();
+                reg.registerAdministration();
                 lm.loadLogins();
                 break;
 
@@ -2396,7 +2747,7 @@ void HallSystem::editStudentProfile(const string &sid)
         {
         case 1:
             clearScreen();
-            printHeader("📝 EDIT NAME");
+            printHeader("📝 EDIT NAME  ");
             cout << YELLOW << "\n  Current Name: " << RESET << s->getName() << "\n";
             cout << YELLOW << "  Enter new name: " << RESET;
             getline(cin, input);
@@ -2639,7 +2990,7 @@ void HallSystem::requestRoomSwap(const string &sid)
             cout << YELLOW << "  You don't have a room assigned yet. Cannot request swap.\n"
                  << RESET;
             cout << "\n"
-                 << CYAN << "  Please contact admin to get a room assignment first.\n"
+                 << CYAN << "  Please contact administration to get a room assignment first.\n"
                  << RESET;
 
             printSeparator();
@@ -3366,11 +3717,10 @@ void HallSystem::manageMealPlan(const string &sid)
     printHeader("MEAL PLAN MANAGEMENT");
 
     MealPlan *mp = findMealPlanByStudentId(sid);
-    if (!mp)
-    {
-        printInfo("Creating new meal plan...");
-        mealPlans.emplace_back(sid, true, true);
-        mp = findMealPlanByStudentId(sid);
+    if (!mp || !(*mp))
+    { // Using overloaded bool operator - checks if meal plan is active
+        printInfo("No active meal plan found.");
+        return;
     }
 
     cout << "\n"
@@ -3789,85 +4139,7 @@ void HallSystem::markMealOff(const string &sid)
         }
     }
 }
-
-void HallSystem::calculateMonthlyBill(const string &sid)
-{
-    clearScreen();
-    cout << "--- Monthly Mess Bill ---\n\n";
-
-    MealPlan *mp = findMealPlanByStudentId(sid);
-    if (!mp)
-    {
-        cout << "No meal plan found.\n";
-        pauseAndClear();
-        return;
-    }
-
-    if (!mp->hasLunch && !mp->hasDinner)
-    {
-        cout << "You are not subscribed to any meal.\n";
-        pauseAndClear();
-        return;
-    }
-
-    string monthYear = getCurrentMonthYear();
-    cout << "Calculating bill for: " << monthYear << "\n\n";
-
-    int daysInMonth = getDaysInMonth(monthYear);
-    int offDaysCount = 0;
-
-    // Count off days in current month
-    for (const auto &date : mp->offDates)
-    {
-        if (date.substr(0, 7) == monthYear)
-            offDaysCount++;
-    }
-
-    int billableDays = daysInMonth - offDaysCount;
-    double totalBill = billableDays * DAILY_MEAL_RATE;
-
-    cout << "Meal Subscription:\n";
-    if (mp->hasLunch && mp->hasDinner)
-        cout << "  Type: Lunch & Dinner\n";
-    else if (mp->hasLunch)
-        cout << "  Type: Lunch Only\n";
-    else if (mp->hasDinner)
-        cout << "  Type: Dinner Only\n";
-
-    cout << "\nCalculation:\n";
-    cout << "  Total Days: " << daysInMonth << "\n";
-    cout << "  Off Days: " << offDaysCount << "\n";
-    cout << "  Billable Days: " << billableDays << "\n";
-    cout << "  Daily Rate: " << DAILY_MEAL_RATE << " Tk\n";
-    cout << "\n════════════════════════════════════════\n";
-    cout << "  TOTAL BILL: " << fixed << setprecision(2) << totalBill << " Tk\n";
-    cout << "════════════════════════════════════════\n";
-
-    // Check if payment already exists for this month
-    bool paymentExists = false;
-    for (const auto &p : payments)
-    {
-        if (p.studentId == sid && p.monthYear == monthYear)
-        {
-            paymentExists = true;
-            cout << "\nPayment Status: " << p.status << "\n";
-            if (p.status == "paid")
-            {
-                cout << "Payment Date: " << p.date << "\n";
-            }
-            break;
-        }
-    }
-
-    if (!paymentExists)
-    {
-        cout << "\nPayment Status: Not yet created\n";
-        cout << "Note: Make payment to complete your bill.\n";
-    }
-
-    pauseAndClear();
-}
-
+// ==================== VIEW TODAY'S MENU ====================
 void HallSystem::viewTodayMenu(const string &sid)
 {
     printHeader("TODAY'S MENU");
@@ -3891,13 +4163,11 @@ void HallSystem::viewTodayMenu(const string &sid)
     else
     {
         printWarning("No menu available for today.");
-        printInfo("Please contact admin to update the menu.");
+        printInfo("Please contact administration to update the menu.");
     }
 
     pauseAndClear();
 }
-
-// Part 5 - Enhanced Payment, Menu & Analytics Functions
 
 // ==================== ENHANCED MEAL PLAN VIEW ====================
 
@@ -3969,7 +4239,7 @@ void HallSystem::studentViewPaymentSlips(const string &sid)
     if (myPayments.empty())
     {
         printWarning("No payment slips found.");
-        printInfo("Admin will generate bills at the end of each month.");
+        printInfo("Administration will generate bills at the end of each month.");
         pauseAndClear();
         return;
     }
@@ -3992,7 +4262,7 @@ void HallSystem::studentViewPaymentSlips(const string &sid)
             p->status,
             p->date == "-" ? "N/A" : p->date};
 
-        string color = (p->status == "paid") ? "green" : "red";
+        string color = (p->hasStatus("paid")) ? "green" : "red";
         printTableRow(row, widths, color);
 
         if (p->status == "pending")
@@ -4070,7 +4340,7 @@ void HallSystem::makePayment(const string &sid)
     Payment *selectedPayment = nullptr;
     for (auto &p : payments)
     {
-        if (p.paymentId == paymentId && p.studentId == sid && p.status == "pending")
+        if (p == paymentId && p.hasStudentId(sid) && p.hasStatus("pending"))
         {
             selectedPayment = &p;
             break;
@@ -4096,16 +4366,16 @@ void HallSystem::makePayment(const string &sid)
     string name = s ? s->getName() : "Unknown";
 
     cout << CYAN << "║  " << RESET << "Payment ID    : " << YELLOW << selectedPayment->paymentId
-         << string(41 - selectedPayment->paymentId.length(), ' ') << CYAN << "║\n";
+         << string(41 - selectedPayment->paymentId.length(), ' ') << CYAN << "    ║\n";
     cout << "║  " << RESET << "Student       : " << WHITE << name
-         << string(41 - name.length(), ' ') << CYAN << "║\n";
+         << string(41 - name.length(), ' ') << CYAN << "    ║\n";
     cout << "║  " << RESET << "Month         : " << WHITE << selectedPayment->monthYear
-         << string(41 - selectedPayment->monthYear.length(), ' ') << CYAN << "║\n";
+         << string(41 - selectedPayment->monthYear.length(), ' ') << CYAN << "    ║\n";
     cout << "║  " << RESET << "Amount        : " << GREEN << BOLD << fixed << setprecision(2)
          << selectedPayment->amount << " Tk" << RESET
-         << string(37 - to_string((int)selectedPayment->amount).length(), ' ') << CYAN << "║\n";
+         << string(37 - to_string((int)selectedPayment->amount).length(), ' ') << CYAN << "  ║\n";
     cout << "║  " << RESET << "Status        : " << RED << "PENDING"
-         << string(41, ' ') << CYAN << "║\n";
+         << string(37, ' ') << CYAN << " ║\n";
     cout << "╚═══════════════════════════════════════════════════════════════╝\n"
          << RESET;
 
@@ -4126,20 +4396,20 @@ void HallSystem::makePayment(const string &sid)
         // Show receipt
         cout << GREEN << BOLD;
         cout << "\n╔═══════════════════════════════════════════════════════════════╗\n";
-        cout << "║                     ✓ PAYMENT RECEIPT ✓                      ║\n";
+        cout << "║                     ✓ PAYMENT RECEIPT ✓                       ║\n";
         cout << "╠═══════════════════════════════════════════════════════════════╣\n";
         cout << RESET;
 
         cout << GREEN << "║  " << RESET << "Payment ID    : " << selectedPayment->paymentId
-             << string(41 - selectedPayment->paymentId.length(), ' ') << GREEN << "║\n";
+             << string(41 - selectedPayment->paymentId.length(), ' ') << GREEN << "    ║\n";
         cout << "║  " << RESET << "Student       : " << name
-             << string(41 - name.length(), ' ') << GREEN << "║\n";
+             << string(41 - name.length(), ' ') << GREEN << "    ║\n";
         cout << "║  " << RESET << "Amount Paid   : " << BOLD << selectedPayment->amount << " Tk" << RESET
-             << string(37 - to_string((int)selectedPayment->amount).length(), ' ') << GREEN << "║\n";
+             << string(37 - to_string((int)selectedPayment->amount).length(), ' ') << GREEN << "  ║\n";
         cout << "║  " << RESET << "Payment Date  : " << selectedPayment->date
-             << string(41 - selectedPayment->date.length(), ' ') << GREEN << "║\n";
+             << string(41 - selectedPayment->date.length(), ' ') << GREEN << "    ║\n";
         cout << "║  " << RESET << "Status        : " << GREEN << BOLD << "✓ PAID" << RESET
-             << string(41, ' ') << GREEN << "║\n";
+             << string(39, ' ') << GREEN << "║\n";
         cout << "╚═══════════════════════════════════════════════════════════════╝\n"
              << RESET;
 
@@ -4153,9 +4423,9 @@ void HallSystem::makePayment(const string &sid)
     pauseAndClear();
 }
 
-// ==================== ENHANCED ADMIN UPDATE MENU ====================
+// ==================== ENHANCED ADMINISTRATION UPDATE MENU ====================
 
-void HallSystem::adminUpdateMenu()
+void HallSystem::administrationUpdateMenu()
 {
     printHeader("UPDATE DAILY MENU");
 
@@ -4227,9 +4497,9 @@ void HallSystem::adminUpdateMenu()
     pauseAndClear();
 }
 
-// ==================== ENHANCED ADMIN VIEW PAYMENTS ====================
+// ==================== ENHANCED ADMINISTRATION VIEW PAYMENTS ====================
 
-void HallSystem::adminViewPayments()
+void HallSystem::administrationViewPayments()
 {
     printHeader("PAYMENT RECORDS");
 
@@ -4261,7 +4531,7 @@ void HallSystem::adminViewPayments()
             p.status,
             p.date == "-" ? "N/A" : p.date};
 
-        string color = (p.status == "paid") ? "green" : "red";
+        string color = (p.hasStatus("paid")) ? "green" : "red";
         printTableRow(row, widths, color);
 
         if (p.status == "paid")
@@ -4298,9 +4568,9 @@ void HallSystem::adminViewPayments()
     pauseAndClear();
 }
 
-// ==================== ENHANCED ADMIN SEARCH PAYMENT ====================
+// ==================== ENHANCED ADMINISTRATION SEARCH PAYMENT ====================
 
-void HallSystem::adminSearchPayment()
+void HallSystem::administrationSearchPayment()
 {
     printHeader("SEARCH STUDENT PAYMENT");
 
@@ -4337,7 +4607,7 @@ void HallSystem::adminSearchPayment()
     vector<Payment *> studentPayments;
     for (auto &p : payments)
     {
-        if (p.studentId == sid)
+        if (p.hasStudentId(sid))
             studentPayments.push_back(&p);
     }
 
@@ -4395,9 +4665,9 @@ void HallSystem::adminSearchPayment()
     pauseAndClear();
 }
 
-// ==================== ENHANCED ADMIN CALCULATE BILL ====================
+// ==================== ENHANCED ADMINISTRATION CALCULATE BILL ====================
 
-void HallSystem::adminCalculateAndGenerateBill()
+void HallSystem::administrationCalculateAndGenerateBill()
 {
     printHeader("CALCULATE & GENERATE BILL");
 
@@ -4676,16 +4946,16 @@ void HallSystem::showDashboardAnalytics()
 
 // ==================== ENHANCED REGISTRATION ====================
 
-void Registration::registerAdmin()
+void Registration::registerAdministration()
 {
     string name, id, pass, email, secQues, secAns;
 
-    printHeader("ADMIN REGISTRATION");
+    printHeader("ADMINISTRATION REGISTRATION");
 
     cout << YELLOW << "\n  Enter Name: " << RESET;
     getline(cin, name);
 
-    cout << YELLOW << "  Enter Admin ID: " << RESET;
+    cout << YELLOW << "  Enter Administration ID: " << RESET;
     getline(cin, id);
 
     cout << YELLOW << "  Enter Password: " << RESET;
@@ -4713,34 +4983,34 @@ void Registration::registerAdmin()
     cout << YELLOW << "  Enter Security Answer: " << RESET;
     getline(cin, secAns);
 
-    showLoadingAnimation("Creating admin account", 2);
+    showLoadingAnimation("Creating administration account", 2);
 
     ofstream fout(filename, ios::app);
-    fout << "admin|" << name << "|" << id << "|" << pass << "|" << email << "|" << secQues << "|" << secAns << "\n";
+    fout << "administration|" << name << "|" << id << "|" << pass << "|" << email << "|" << secQues << "|" << secAns << "\n";
     fout.close();
 
-    printSuccess("Admin registered successfully!");
+    printSuccess("Administration registered successfully!");
     printBox("Welcome to the system, " + name + "! 🎉");
     pauseAndClear();
 }
 
-bool LoginManager::adminLogin()
+bool LoginManager::administrationLogin()
 {
-    printHeader("ADMIN LOGIN");
+    printHeader("ADMINISTRATION LOGIN");
 
     string id, pass;
-    cout << YELLOW << "\n  Enter Admin ID: " << RESET;
+    cout << YELLOW << "\n  Enter Administration ID: " << RESET;
     cin >> ws;
     getline(cin, id);
 
-    cout << YELLOW << "  Enter Password: " << RESET;
+    cout << YELLOW << "  Enter Password         : " << RESET;
     pass = readPassword();
 
     showLoadingAnimation("Authenticating", 1);
 
     for (Login &l : logins)
     {
-        if (l.getRole() == "admin" && l.getId() == id && l.getPassword() == pass)
+        if (l.getRole() == "administration" && l.getId() == id && l.getPassword() == pass)
         {
             clearScreen();
             printSuccess("Login successful!");
@@ -4762,7 +5032,7 @@ string LoginManager::studentLogin()
     cin >> ws;
     getline(cin, id);
 
-    cout << YELLOW << "  Enter Password: " << RESET;
+    cout << YELLOW << "  Enter Password  : " << RESET;
     pass = readPassword();
 
     showLoadingAnimation("Authenticating", 1);
@@ -4851,41 +5121,6 @@ void HallSystem::addStudent()
 
     pauseAndClear();
 }
-
-void HallSystem::viewStudents() const
-{
-    if (students.empty())
-    {
-        printWarning("No students found in the system.");
-        pauseAndClear();
-        return;
-    }
-
-    printHeader("STUDENTS LIST");
-
-    cout << "\n";
-    vector<string> headers = {"Student ID", "Name", "Department", "Batch", "Room No"};
-    vector<int> widths = {15, 25, 15, 10, 15};
-
-    printTableHeader(headers, widths);
-
-    for (const auto &s : students)
-    {
-        vector<string> row = {
-            s.getId(),
-            s.getName(),
-            s.getDept(),
-            s.getBatch(),
-            s.getRoom().empty() ? "Not assigned" : s.getRoom()};
-
-        string color = s.getRoom().empty() ? "yellow" : "";
-        printTableRow(row, widths, color);
-    }
-
-    printSeparator();
-    cout << GREEN << "\n   📊 Total Students: " << students.size() << RESET << "\n";
-}
-
 void HallSystem::deleteStudent()
 {
     printHeader("DELETE STUDENT");
@@ -4897,25 +5132,78 @@ void HallSystem::deleteStudent()
         return;
     }
 
-    viewStudents();
+    // MODERN DESIGN - Perfect alignment
+    cout << CYAN << BOLD << "\n  📚 STUDENT DIRECTORY\n"
+         << RESET;
 
-    cout << YELLOW << "\n  Enter Student ID to delete (or type 'NO' to cancel): " << RESET;
+    // Header
+    cout << MAGENTA << "  ╔═════╦════════════╦══════════════════╦════════╦═══════╦══════════╗\n"
+         << RESET;
+    cout << MAGENTA << "  ║ " << BOLD << " # " << " ║ " << "Student ID" << " ║ " << "Name           " << "  ║ " << "Dept  " << " ║ " << "Batch" << " ║ " << " Room   " << " ║\n"
+         << RESET;
+    cout << MAGENTA << "  ╠═════╬════════════╬══════════════════╬════════╬═══════╬══════════╣\n"
+         << RESET;
+
+    // Student rows
+    for (size_t i = 0; i < students.size(); i++)
+    {
+        const auto &s = students[i];
+
+        // Prepare display values
+        string nameDisplay = s.getName();
+        if (nameDisplay.length() > 15)
+        {
+            nameDisplay = nameDisplay.substr(0, 14) + ".";
+        }
+
+        string roomStatus = s.getRoom().empty() ? "None" : s.getRoom();
+        string roomColor = s.getRoom().empty() ? RED : GREEN;
+
+        cout << MAGENTA << "  ║ " << RESET
+             << YELLOW << setw(2) << right << (i + 1) << " " << MAGENTA << " ║ " << RESET
+             << CYAN << setw(10) << left << s.getId() << MAGENTA << " ║ " << RESET
+             << WHITE << setw(16) << left << nameDisplay << MAGENTA << " ║ " << RESET
+             << BLUE << setw(6) << left << s.getDept() << MAGENTA << " ║ " << RESET
+             << GREEN << setw(5) << left << s.getBatch() << MAGENTA << " ║ " << RESET
+             << roomColor << setw(8) << left << roomStatus << MAGENTA << " ║\n"
+             << RESET;
+    }
+
+    cout << MAGENTA << "  ╚═════╩════════════╩══════════════════╩════════╩═══════╩══════════╝\n"
+         << RESET;
+
+    // Statistics with emojis
+    int withRooms = count_if(students.begin(), students.end(), [](const Student &s)
+                             { return !s.getRoom().empty(); });
+
+    cout << "\n  " << GREEN << "✅ " << withRooms << " with rooms" << RESET
+         << "  " << RED << "❌ " << (students.size() - withRooms) << " without rooms" << RESET
+         << "  " << CYAN << "📊 " << students.size() << " total" << RESET << "\n";
+
+    printSeparator();
+
+    // Input section
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    cout << YELLOW << "\n  🎯 Enter Student ID to delete (or 'BACK' to cancel): " << RESET;
     string id;
-    cin >> ws;
     getline(cin, id);
 
-    if (id == "NO" || id == "no" || id == "No")
+    // Handle cancellation
+    if (id == "BACK" || id == "back")
     {
-        printInfo("Deletion cancelled.");
+        printInfo("Operation cancelled.");
         pauseAndClear();
         return;
     }
 
+    // Find student
     auto it = students.begin();
     bool found = false;
     for (; it != students.end(); ++it)
     {
-        if (it->getId() == id) // ← String comparison ঠিক আছে
+        if (it->getId() == id)
         {
             found = true;
             break;
@@ -4925,27 +5213,36 @@ void HallSystem::deleteStudent()
     if (!found)
     {
         printError("Student not found!");
-        printInfo("Please check the Student ID and try again."); // ← helpful message
+        cout << YELLOW << "  Please check the Student ID from the list above.\n"
+             << RESET;
         pauseAndClear();
         return;
     }
 
-    // Show student details before deleting
-    cout << "\n"
-         << CYAN << "  Student to be deleted:\n"
-         << RESET;
-    cout << "  Name       : " << YELLOW << it->getName() << RESET << "\n";
-    cout << "  Department : " << YELLOW << it->getDept() << RESET << "\n";
-    cout << "  Batch      : " << YELLOW << it->getBatch() << RESET << "\n";
-    cout << "  Room       : " << YELLOW << (it->getRoom().empty() ? "Not assigned" : it->getRoom()) << RESET << "\n\n";
+    // Show confirmation with student details
+    clearScreen();
+    printHeader("CONFIRM DELETION");
 
-    printWarning("Are you sure you want to delete this student? (yes/no): ");
+    cout << "\n"
+         << RED << BOLD << "  ⚠️  STUDENT TO BE DELETED:\n"
+         << RESET;
+    cout << "  ┌────────────────────────────────────────────┐\n";
+    cout << "  │ " << YELLOW << "Student ID   : " << RESET << it->getId() << "\n";
+    cout << "  │ " << YELLOW << "Name         : " << RESET << it->getName() << "\n";
+    cout << "  │ " << YELLOW << "Department   : " << RESET << it->getDept() << "\n";
+    cout << "  │ " << YELLOW << "Batch        : " << RESET << it->getBatch() << "\n";
+    cout << "  │ " << YELLOW << "Room         : " << RESET << (it->getRoom().empty() ? "Not assigned" : it->getRoom()) << "\n";
+    cout << "  └────────────────────────────────────────────┘\n\n";
+
+    printWarning("❌ This action cannot be undone! All student data will be permanently deleted.");
+
+    cout << YELLOW << "\n  Type 'DELETE' to confirm deletion, or anything else to cancel: " << RESET;
     string confirm;
     getline(cin, confirm);
 
-    if (confirm == "yes" || confirm == "YES" || confirm == "Yes" || confirm == "Y" || confirm == "y")
+    if (confirm == "DELETE")
     {
-        showLoadingAnimation("Deleting student", 2);
+        showLoadingAnimation("Deleting student record", 2);
 
         string roomNo = it->getRoom();
         if (!roomNo.empty())
@@ -4989,15 +5286,14 @@ void HallSystem::deleteStudent()
 
         clearScreen();
         printSuccess("Student deleted successfully!");
-        printBox("Student record removed from system 🗑️");
+        printBox("Student record permanently removed from system 🗑️");
     }
     else
     {
-        printInfo("Deletion cancelled.");
+        printInfo("Deletion cancelled. Student record is safe.");
     }
     pauseAndClear();
 }
-
 void HallSystem::addRoom()
 {
     string rno;
@@ -5031,43 +5327,6 @@ void HallSystem::addRoom()
     pauseAndClear();
 }
 
-void HallSystem::viewRooms() const
-{
-    if (rooms.empty())
-    {
-        printWarning("No rooms found in the system.");
-        return;
-    }
-
-    printHeader("ROOMS LIST");
-    cout << "\n";
-
-    for (const auto &r : rooms)
-    {
-        cout << CYAN << "  🚪 Room: " << RESET << r.roomNo;
-        cout << YELLOW << " | Capacity: " << RESET << r.capacity;
-        cout << BLUE << " | Occupied: " << RESET << r.occupants.size();
-
-        if (r.hasSpace())
-            cout << GREEN << " ✓ Available" << RESET << "\n";
-        else
-            cout << RED << " ✗ Full" << RESET << "\n";
-
-        if (!r.occupants.empty())
-        {
-            cout << "     Occupants: ";
-            for (size_t i = 0; i < r.occupants.size(); ++i)
-            {
-                if (i > 0)
-                    cout << ", ";
-                cout << r.occupants[i];
-            }
-            cout << "\n";
-        }
-        cout << "\n";
-    }
-}
-
 void HallSystem::assignRoom()
 {
     string sid, rno;
@@ -5092,28 +5351,14 @@ void HallSystem::assignRoom()
     getline(cin, rno);
 
     Room *r = findRoomByNo(rno);
-    if (!r)
-    {
-        printWarning("Room not found. Do you want to add it? (y/n): ");
-        char c;
-        cin >> c;
-        if (c == 'y' || c == 'Y')
-        {
-            int cap;
-            cout << YELLOW << "  Enter Capacity: " << RESET;
-            cin >> cap;
-            rooms.emplace_back(rno, cap);
-            r = findRoomByNo(rno);
-            printSuccess("Room added!");
-        }
-        else
-        {
-            pauseAndClear();
-            return;
-        }
+    if (!(*r))
+    { // Using overloaded bool operator - checks if room has space
+        printError("Room is full! Cannot assign.");
+        pauseAndClear();
+        return;
     }
 
-    if (!r->hasSpace())
+    if (!(*r))
     {
         printError("Room is full! Cannot assign.");
         pauseAndClear();
@@ -5165,29 +5410,94 @@ void HallSystem::submitComplaint(const string &studentId)
     pauseAndClear();
 }
 
-void HallSystem::viewComplaints()
+void HallSystem::viewComplaintStatus(const string &sid)
 {
-    if (complaints.empty())
+    clearScreen();
+
+    cout << MAGENTA << BOLD;
+    cout << "\n╔════════════════════════════════════════════════════════════════╗\n";
+    cout << "║                 COMPLAINT STATUS & REPLIES                     ║\n";
+    cout << "╚════════════════════════════════════════════════════════════════╝\n"
+         << RESET;
+
+    vector<Complaint *> myComplaints;
+
+    // Find all complaints by this student
+    for (auto &complaint : complaints)
     {
-        printWarning("No complaints found.");
-        return;
+        if (complaint.hasStudentId(sid)) // Using the fixed function name
+        {
+            myComplaints.push_back(&complaint);
+        }
     }
 
-    printHeader("COMPLAINTS LIST");
-    cout << "\n";
-
-    for (const auto &c : complaints)
+    if (myComplaints.empty())
     {
-        cout << CYAN << "  🆔 " << c.complaintId << RESET;
-        cout << " | Student: " << YELLOW << c.studentId << RESET;
+        cout << "\n\n";
+        cout << CYAN << BOLD;
+        cout << "  ╔═══════════════════════════════════════════════════════╗\n";
+        cout << "  ║                   📭 NO COMPLAINTS FOUND             ║\n";
+        cout << "  ╚═══════════════════════════════════════════════════════╝\n"
+             << RESET;
 
-        if (c.status == "pending")
-            cout << " | Status: " << RED << "⏳ " << c.status << RESET << "\n";
-        else
-            cout << " | Status: " << GREEN << "✓ " << c.status << RESET << "\n";
-
-        cout << "     📝 " << c.text << "\n\n";
+        cout << "\n"
+             << YELLOW << "  ℹ️  You haven't submitted any complaints yet.\n"
+             << RESET;
+        cout << "\n"
+             << CYAN << "  Use 'Submit New Complaint' to report any issues.\n"
+             << RESET;
     }
+    else
+    {
+        // Sort complaints by ID (most recent first)
+        sort(myComplaints.begin(), myComplaints.end(),
+             [](const Complaint *a, const Complaint *b)
+             {
+                 return a->complaintId > b->complaintId;
+             });
+
+        cout << "\n"
+             << CYAN << BOLD << "  📋 Your Complaints:\n"
+             << RESET;
+
+        for (const auto *complaint : myComplaints)
+        {
+            cout << "\n"
+                 << MAGENTA << "  ┌─ " << "Complaint ID: " << complaint->complaintId
+                 << string(40 - complaint->complaintId.length(), '-') << "┐\n"
+                 << RESET;
+
+            cout << "  │ " << YELLOW << "Status: " << RESET;
+            if (complaint->status == "pending")
+                cout << YELLOW << "⏳ Pending (Admin will reply soon)" << RESET << "\n";
+            else
+                cout << GREEN << "✅ " << complaint->status << RESET << "\n";
+
+            cout << "  │ " << YELLOW << "Your Message:\n"
+                 << RESET;
+            cout << "  │   " << WHITE << complaint->text << RESET << "\n";
+
+            // If status is not pending, show the admin reply
+            if (complaint->status != "pending")
+            {
+                cout << "  │ " << YELLOW << "Admin Reply:\n"
+                     << RESET;
+                cout << "  │   " << GREEN << complaint->status << RESET << "\n";
+            }
+
+            cout << MAGENTA << "  └" << string(58, '-') << "┘\n"
+                 << RESET;
+        }
+
+        cout << "\n"
+             << YELLOW << "  📊 Summary: " << RESET
+             << myComplaints.size() << " complaint(s) total\n";
+    }
+
+    printSeparator();
+    cout << YELLOW << "\n  Press Enter to continue... " << RESET;
+    cin.get();
+    clearScreen();
 }
 
 void HallSystem::replyComplaint()
@@ -5202,7 +5512,7 @@ void HallSystem::replyComplaint()
 
     for (auto &c : complaints)
     {
-        if (c.complaintId == cid)
+        if (c == cid)
         {
             cout << "\n"
                  << CYAN << "  ═══ Complaint Details ═══\n"
@@ -5212,16 +5522,17 @@ void HallSystem::replyComplaint()
             cout << "  Message: " << WHITE << c.text << RESET << "\n";
             cout << "  Current Status: " << (c.status == "pending" ? RED : GREEN) << c.status << RESET << "\n\n";
 
-            cout << YELLOW << "  Enter reply/status: " << RESET;
-            string s;
-            getline(cin, s);
+            cout << YELLOW << "  Enter your reply: " << RESET;
+            string reply;
+            getline(cin, reply);
 
-            showLoadingAnimation("Updating complaint", 1);
+            showLoadingAnimation("Sending reply", 1);
 
-            c.status = s;
+            c.adminReply = reply;
+            c.status = "Replied"; // Or you can keep it as the reply text
 
-            printSuccess("Complaint updated successfully!");
-            printBox("Student will be notified! 📧");
+            printSuccess("Reply sent successfully!");
+            printBox("Student will see your reply! 📧");
             pauseAndClear();
             return;
         }
@@ -5233,22 +5544,22 @@ void HallSystem::replyComplaint()
 
 // == == == == == == == == == == ENHANCED MENUS == == == == == == == == == ==
 
-void HallSystem::adminMenu()
+void HallSystem::administrationMenu()
 {
-    // Get admin name from first login
-    string adminName = "Admin";
+    // Get administration name from first login
+    string administrationName = "Administration";
     for (const auto &l : lm.logins)
     {
-        if (l.getRole() == "admin")
+        if (l.getRole() == "administration")
         {
-            adminName = l.getName();
+            administrationName = l.getName();
             break;
         }
     }
 
     while (true)
     {
-        displayAdminMenu(adminName);
+        displayAdministrationMenu(administrationName);
 
         int ch;
         if (!(cin >> ch))
@@ -5266,7 +5577,7 @@ void HallSystem::adminMenu()
             break;
         case 2:
             clearScreen();
-            viewStudents();
+            displayStudentsTableEnhanced(students);
             pauseAndClear();
             break;
         case 3:
@@ -5297,23 +5608,23 @@ void HallSystem::adminMenu()
             break;
         case 9:
             clearScreen();
-            adminUpdateMenu();
+            administrationUpdateMenu();
             break;
         case 10:
             clearScreen();
-            adminCalculateAndGenerateBill();
+            administrationCalculateAndGenerateBill();
             break;
         case 11:
             clearScreen();
-            adminViewPayments();
+            administrationViewPayments();
             break;
         case 12:
             clearScreen();
-            adminSearchPayment();
+            administrationSearchPayment();
             break;
         case 13:
             clearScreen();
-            deleteAdmin();
+            deleteAdministration();
             break;
         case 14:
             clearScreen();
@@ -5417,10 +5728,58 @@ void HallSystem::studentMenu(const string &sid)
                 pauseAndClear();
             }
             break;
+
         case 4:
-            clearScreen();
-            submitComplaint(sid);
+        {
+            bool backToMain = false;
+            while (!backToMain)
+            {
+                clearScreen();
+                cout << MAGENTA << BOLD;
+                cout << "\n╔════════════════════════════════════════════════════════════════╗\n";
+                cout << "║                       COMPLAINT                                ║\n";
+                cout << "╚════════════════════════════════════════════════════════════════╝\n"
+                     << RESET;
+
+                cout << "\n"
+                     << CYAN << BOLD << "  📋 Options:\n"
+                     << RESET;
+                printMenuOption(1, "📝 Submit New Complaint", false);
+                printMenuOption(2, "👀 View Complaint Status & Replies", false);
+                printMenuOption(3, "🔙 Back to Student Menu", true);
+
+                printSeparator();
+                cout << YELLOW << "\n   Enter your choice (1-3): " << RESET;
+
+                int complaintChoice;
+                if (!(cin >> complaintChoice))
+                {
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    continue;
+                }
+
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                switch (complaintChoice)
+                {
+                case 1:
+                    submitComplaint(sid);
+                    break;
+                case 2:
+                    viewComplaintStatus(sid);
+                    break;
+                case 3:
+                    backToMain = true;
+                    break;
+                default:
+                    printError("Invalid choice!");
+                    pauseAndClear();
+                    break;
+                }
+            }
             break;
+        }
         case 5:
             clearScreen();
             requestRoomSwap(sid);
@@ -5473,7 +5832,15 @@ void HallSystem::studentMenu(const string &sid)
 // ------------------ Main Function ------------------
 int main()
 {
-    HallSystem hs;
-    hs.start();
-    return 0;
+    try
+    {
+        HallSystem hs;
+        hs.start();
+        return 0;
+    }
+    catch (...)
+    {
+        cout << "❌ Unknown error occurred!" << endl;
+        return 1;
+    }
 }
